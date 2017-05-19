@@ -3,42 +3,26 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "OpenDoor.generated.h"
+#include "Grabber.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ESCAPEROOM_API UOpenDoor : public UActorComponent
+class ESCAPEROOM_API UGrabber : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UOpenDoor();
+	UGrabber();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void SetPositions();
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void Open();
-	void Close();
-
 		
-private:
-	UPROPERTY(EditAnywhere)
-	float OpenAngle = 90.f;
-	UPROPERTY(EditAnywhere)
-	float CloseDelay = 0.f;
-	float LastDoorOpenTime = 0.f;
-	FRotator ClosedPosition;
-	FRotator OpenPosition;
-
-	UPROPERTY(EditAnywhere)
-	ATriggerVolume* Trigger;
-	AActor* ActorThatOpens;
+	
 };
