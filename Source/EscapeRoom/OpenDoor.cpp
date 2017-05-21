@@ -20,7 +20,6 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	SetPositions();
-	this->ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 // Set the open and close positions
@@ -36,7 +35,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (this->Trigger && this->Trigger->IsOverlappingActor(this->ActorThatOpens))
+	if (this->GetTriggerWeight() >= this->TriggerWeightMinimum)
 	{
 		Open();
 		this->LastDoorOpenTime = GetWorld()->GetTimeSeconds();
@@ -64,4 +63,19 @@ void UOpenDoor::Close()
 	{
 		GetOwner()->SetActorRelativeRotation(this->ClosedPosition);
 	}
+}
+
+float UOpenDoor::GetTriggerWeight()
+{
+	float TotalMass = 0.f;
+	TArray<AActor*> ActorsOnTrigger;
+	Trigger->GetOverlappingActors(ActorsOnTrigger);
+
+	for (const auto& ActorOnTrigger : ActorsOnTrigger) {
+		TotalMass += ActorOnTrigger->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		UE_LOG(LogTemp, Warning, TEXT("%s: %f"), *ActorOnTrigger->GetName(), ActorOnTrigger->FindComponentByClass<UPrimitiveComponent>()->GetMass())
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Total Mass: %f"), TotalMass)
+
+	return TotalMass;
 }

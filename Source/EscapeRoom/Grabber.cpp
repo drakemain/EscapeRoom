@@ -61,16 +61,26 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	MoveGrabbedObject();
+}
+
+void UGrabber::MoveGrabbedObject()
+{
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		FVector PlayerLocation;
-		FRotator PlayerRotation;
-		FVector GrabberReach;
-
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
-		GrabberReach = PlayerRotation.Vector() * this->ReachDistance + PlayerLocation;
-		PhysicsHandle->SetTargetLocation(GrabberReach);
+		PhysicsHandle->SetTargetLocation(this->GetReachVector());
 	}
+}
+
+void UGrabber::UpdateReach()
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(this->ViewPortLocation, this->ViewPortRotation);
+}
+
+FVector UGrabber::GetReachVector()
+{
+	this->UpdateReach();
+	return this->ViewPortRotation.Vector() * this->ReachDistance + this->ViewPortLocation;
 }
 
 void UGrabber::Grab()
@@ -78,7 +88,6 @@ void UGrabber::Grab()
 	UE_LOG(LogTemp, Warning, TEXT("Grabber grab!"))
 	const FHitResult Hit = this->GetFirstPhysicsBodyInReach();
 	UPrimitiveComponent* ComponentToGrab = Hit.GetComponent();
-
 
 	if (Hit.GetActor())
 	{
@@ -104,18 +113,13 @@ void UGrabber::Release()
 
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 {
-	FVector PlayerLocation;
-	FRotator PlayerRotation;
-	FVector GrabberReach;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(this->ViewPortLocation, this->ViewPortRotation);
 
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
-	GrabberReach = PlayerRotation.Vector() * this->ReachDistance + PlayerLocation;
-
-	DrawDebugLine(GetWorld(), PlayerLocation, GrabberReach, FColor(255, 0, 0), false, 0.f, 0, 1.f);
+	DrawDebugLine(GetWorld(), this->ViewPortLocation, this->GetReachVector(), FColor(255, 0, 0), true, 3.f, 0, 1.f);
 
 	FHitResult Hit;
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
-	GetWorld()->LineTraceSingleByObjectType(Hit, PlayerLocation, GrabberReach, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), TraceParameters);
+	GetWorld()->LineTraceSingleByObjectType(Hit, this->ViewPortLocation, this->GetReachVector(), FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), TraceParameters);
 
 	if (Hit.GetActor()) {
 		UE_LOG(LogTemp, Warning, TEXT("GRABBER HIT: %s"), *Hit.GetActor()->GetName())

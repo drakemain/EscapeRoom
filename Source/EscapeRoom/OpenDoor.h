@@ -30,6 +30,8 @@ public:
 
 		
 private:
+	float GetTriggerWeight();
+
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.f;
 	UPROPERTY(EditAnywhere)
@@ -40,5 +42,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* Trigger;
-	AActor* ActorThatOpens;
+	UPROPERTY(EditAnywhere)
+	float TriggerWeightMinimum = 0.f;
 };

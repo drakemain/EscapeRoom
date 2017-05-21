@@ -29,11 +29,17 @@ private:
 	void Init();
 	void GetInputComponent();
 	void GetPhysicsHandle();
+	void MoveGrabbedObject();
+	void UpdateReach();
+	FVector GetReachVector();
+
 	const FHitResult GetFirstPhysicsBodyInReach();
 
 	UPROPERTY(EditAnywhere)
 	float ReachDistance = 100.f;
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* Input = nullptr;
-	
+
+	FVector ViewPortLocation;
+	FRotator ViewPortRotation;
 };
